@@ -1,14 +1,20 @@
 require('dotenv').config();
 const express = require('express');
-const {dbConnection} = require('./database/config');
+const {dbConnection} = require('./src/database/config');
 const cors = require('cors');
 const app = express();
 
-// Crear el servidor de express
+// Activar CORS
+app.use(cors());
+
+// Lectura y parseo del body
+app.use(express.json());
 
 // Base de datos
 dbConnection();
 
-app.use(cors);
+// Rutas
+app.use('/api/usuarios', require('./src/routes/usuarios'));
+app.use('/api/login', require('./src/routes/auth'));
 
 app.listen(process.env.PORT)
