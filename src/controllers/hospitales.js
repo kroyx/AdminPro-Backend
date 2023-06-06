@@ -1,4 +1,4 @@
-const Usuario      = require('../models/usuario');
+const Hospital = require('../models/hospital')
 const { response } = require('express');
 const bcrypt       = require('bcryptjs');
 const { generarJWT } = require('../helpers/jwt');

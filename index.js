@@ -17,5 +17,6 @@ dbConnection();
 app.use('/api/login', require('./src/routes/auth'));
 app.use('/api/usuarios', require('./src/routes/usuarios'));
 app.use('/api/hospitales', require('./src/routes/hospitales'));
+app.use('/api/medicos', require('./src/routes/medicos'));
 
 app.listen(process.env.PORT)
