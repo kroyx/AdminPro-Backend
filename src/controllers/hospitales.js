@@ -1,13 +1,22 @@
 const Hospital = require('../models/hospital')
 const { response } = require('express');
-const bcrypt       = require('bcryptjs');
-const { generarJWT } = require('../helpers/jwt');
 
 const getHospitales = async (req, res = response) => {
   try {
+
+    // Obtiene el usuario completo
+    // const hospitales = await Hospital
+    //   .find()
+    //   .populate('usuario');
+
+    // Obtiene solo los campos especificados
+    const hospitales = await Hospital
+      .find()
+      .populate('usuario','nombre img');
+
     return res.json({
       ok: true,
-      msg: 'obtener hospitales',
+      hospitales
     });
   } catch (error) {
     console.log(error);

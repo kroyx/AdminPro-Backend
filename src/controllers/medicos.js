@@ -1,13 +1,25 @@
 const Medico      = require('../models/medico');
 const { response } = require('express');
-const bcrypt       = require('bcryptjs');
-const { generarJWT } = require('../helpers/jwt');
 
 const getMedicos = async (req, res = response) => {
-  return res.json({
-    ok: true,
-    msg: 'obtener medicos'
-  })
+  try {
+
+    const medicos = await Medico
+      .find()
+      .populate('usuario','nombre img')
+      .populate('hospital','nombre img');
+
+    return res.json({
+      ok: true,
+      medicos
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      ok: false,
+      msg: 'Error inesperado, hable con el administrador'
+    })
+  }
 }
 
 const crearMedico = async (req, res = response) => {
