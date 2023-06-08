@@ -1,4 +1,4 @@
-const Hospital = require('../models/hospital')
+const Hospital     = require('../models/hospital');
 const { response } = require('express');
 
 const getHospitales = async (req, res = response) => {
@@ -12,26 +12,26 @@ const getHospitales = async (req, res = response) => {
     // Obtiene solo los campos especificados
     const hospitales = await Hospital
       .find()
-      .populate('usuario','nombre img');
+      .populate('usuario', 'nombre img');
 
     return res.json({
       ok: true,
-      hospitales
+      hospitales,
     });
   } catch (error) {
     console.log(error);
     res.status(500).json({
       ok: false,
-      msg: 'Error inesperado, hable con el administrador'
-    })
+      msg: 'Error inesperado, hable con el administrador',
+    });
   }
-}
+};
 
 const crearHospital = async (req, res = response) => {
-  const uid = req.uid;
+  const uid      = req.uid;
   const hospital = new Hospital({
     usuario: uid,
-    ...req.body
+    ...req.body,
   });
 
   try {
@@ -40,50 +40,87 @@ const crearHospital = async (req, res = response) => {
 
     return res.json({
       ok: true,
-      hospital: newHospital
+      hospital: newHospital,
     });
   } catch (error) {
     console.log(error);
     res.status(500).json({
       ok: false,
-      msg: 'Error inesperado, hable con el administrador'
-    })
+      msg: 'Error inesperado, hable con el administrador',
+    });
   }
-}
+};
 
 const actualizarHospital = async (req, res = response) => {
+
+  const id  = req.params.id;
+  const uid = req.uid;
+
   try {
+
+    const hospital = await Hospital.findById(id);
+
+    if (!hospital) {
+      return res.status(404).json({
+        ok: true,
+        msg: 'El hospital indicado por id no existe',
+      });
+    }
+
+    const cambiosHospital = {
+      ...req.body,
+      usuario: uid,
+    };
+
+    const hospitalActualizado = await Hospital.findByIdAndUpdate(id, cambiosHospital,
+      { new: true });
+
     return res.json({
       ok: true,
-      msg: 'actualizar hospital',
+      hospital: hospitalActualizado
     });
   } catch (error) {
     console.log(error);
     res.status(500).json({
       ok: false,
-      msg: 'Error inesperado, hable con el administrador'
-    })
+      msg: 'Error inesperado, hable con el administrador',
+    });
   }
-}
+};
 
 const borrarHospital = async (req, res = response) => {
+
+  const id = req.params.id;
+
   try {
+
+    const hospital = await Hospital.findById(id);
+
+    if (!hospital) {
+      return res.status(404).json({
+        ok: true,
+        msg: 'El hospital indicado por id no existe',
+      });
+    }
+
+    await Hospital.findByIdAndDelete(id);
+
     return res.json({
       ok: true,
-      msg: 'borrar hospital',
+      msg: 'Hospital eliminado correctamente',
     });
   } catch (error) {
     console.log(error);
     res.status(500).json({
       ok: false,
-      msg: 'Error inesperado, hable con el administrador'
-    })
+      msg: 'Error inesperado, hable con el administrador',
+    });
   }
-}
+};
 
 module.exports = {
   getHospitales,
   crearHospital,
   actualizarHospital,
-  borrarHospital
+  borrarHospital,
 };
