@@ -16,7 +16,7 @@ const login = async (req, res = response) => {
     if (!usuarioDB) {
       return res.status(400).json({
         ok: false,
-        msg: 'El email no encontrado',
+        msg: 'El email no existe',
       });
     }
 
@@ -87,11 +87,16 @@ const googleSignIn = async (req, res = response) => {
 const renewToken = async (req, res = response) => {
   const uid = req.uid;
 
+  // Obtener el token
   const token = await generarJWT(uid);
+
+  // Obtener el usuario por UID
+  const usuario = await Usuario.findById(uid);
 
   res.json({
     ok: true,
-    token
+    token,
+    usuario
   })
 }
 
