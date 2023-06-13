@@ -4,19 +4,28 @@ const { response } = require('express');
 const getHospitales = async (req, res = response) => {
   try {
 
+    const desde = Number(req.query.desde) || 0;
+    const limit = Number(req.query.limit) || null;
+
     // Obtiene el usuario completo
     // const hospitales = await Hospital
     //   .find()
     //   .populate('usuario');
 
     // Obtiene solo los campos especificados
-    const hospitales = await Hospital
-      .find()
-      .populate('usuario', 'nombre img');
+    const [ hospitales, total ] = await Promise.all([
+      Hospital
+        .find()
+        .populate('usuario', 'nombre img')
+        .skip(desde)
+        .limit(limit),
+      Hospital.count(),
+    ]);
 
     return res.json({
       ok: true,
       hospitales,
+      total
     });
   } catch (error) {
     console.log(error);
@@ -77,7 +86,7 @@ const actualizarHospital = async (req, res = response) => {
 
     return res.json({
       ok: true,
-      hospital: hospitalActualizado
+      hospital: hospitalActualizado,
     });
   } catch (error) {
     console.log(error);

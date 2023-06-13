@@ -4,18 +4,51 @@ const { response } = require('express');
 const getMedicos = async (req, res = response) => {
   try {
 
-    const medicos = await Medico
-      .find()
+    const desde = Number(req.query.desde) || 0;
+    const limit = Number(req.query.limit) || null;
+
+    const [ medicos, total ] = await Promise.all([
+      Medico
+        .find()
+        .populate('usuario', 'nombre img')
+        .populate('hospital', 'nombre img')
+        .skip(desde)
+        .limit(limit),
+      Medico.count(),
+    ]);
+
+    return res.json({
+      ok: true,
+      medicos,
+      total,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      ok: false,
+      msg: 'Error inesperado, hable con el administrador',
+    });
+  }
+};
+
+const getMedico = async (req, res = response) => {
+  const id = req.params.id;
+
+  try {
+
+    const medico = await Medico
+      .findById(id)
       .populate('usuario', 'nombre img')
       .populate('hospital', 'nombre img');
 
     return res.json({
       ok: true,
-      medicos,
+      medico,
     });
+
   } catch (error) {
     console.log(error);
-    res.status(500).json({
+    return res.status(500).json({
       ok: false,
       msg: 'Error inesperado, hable con el administrador',
     });
@@ -54,7 +87,7 @@ const actualizarMedico = async (req, res = response) => {
 
   try {
 
-    const medico = Medico.findById(id);
+    const medico = await Medico.findById(id);
 
     if (!medico) {
       return res.status(404).json({
@@ -68,7 +101,7 @@ const actualizarMedico = async (req, res = response) => {
       usuario: uid,
     };
 
-    const medicoActualizado = Medico.findByIdAndUpdate(id, cambiosMedico, { new: true });
+    const medicoActualizado = await Medico.findByIdAndUpdate(id, cambiosMedico, { new: true });
 
     return res.json({
       ok: true,
@@ -89,7 +122,7 @@ const borrarMedico = async (req, res = response) => {
 
   try {
 
-    const medico = Medico.findById(id);
+    const medico = await Medico.findById(id);
 
     if (!medico) {
       return res.status(404).json({
@@ -102,7 +135,7 @@ const borrarMedico = async (req, res = response) => {
 
     return res.json({
       ok: true,
-      msg: 'El medico se ha eliminado correctamente'
+      msg: 'El medico se ha eliminado correctamente',
     });
   } catch (error) {
     console.log(error);
@@ -115,6 +148,7 @@ const borrarMedico = async (req, res = response) => {
 
 module.exports = {
   getMedicos,
+  getMedico,
   crearMedico,
   actualizarMedico,
   borrarMedico,
