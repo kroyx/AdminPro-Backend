@@ -4,6 +4,10 @@
 
 .env
 
+/src/uploads/hospitales/**
+/src/uploads/medicos/**
+/src/uploads/usuarios/**
+
 # Logs
 logs
 *.log
